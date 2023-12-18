@@ -1,0 +1,2 @@
+data/kddcup.data_10_percent.csv filter=lfs diff=lfs merge=lfs -text
+data/kddcup.data_10_percent_corrected.csv filter=lfs diff=lfs merge=lfs -text
