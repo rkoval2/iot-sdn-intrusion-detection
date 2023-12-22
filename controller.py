@@ -9,7 +9,7 @@ from ryu.lib.packet import packet, tcp, ipv4
 from ryu.lib import hub
 
 from monitor import Flag, Protocol, TcpConn, TcpConnState, TcpConnWindow, Land
-from detect import detect
+from detect import Detector
 
 
 def get_data_size(pkt_ip: ipv4.ipv4, pkt_tcp: tcp.tcp):
@@ -38,6 +38,8 @@ class Controller(RyuApp):
         self.blocked_hosts = set()
         self.window = TcpConnWindow()
 
+        self.detector = Detector()
+
         self.logger.setLevel(logging.WARN)
 
         hub.spawn(self.monitor)
@@ -46,7 +48,7 @@ class Controller(RyuApp):
         while True:
             stats = self.window.stats()
             for stat in stats:
-                is_attack = detect(stat)
+                is_attack = self.detector.detect(stat)
                 if is_attack and stat.conn.src_ip not in self.blocked_hosts:
                     self.logger.warn(
                         f"Detected attack: origin={stat.conn.src_ip}:{stat.conn.src_port}, "
